@@ -54,7 +54,7 @@ public class HttpFetcher implements Fetcher {
 
     private static final String HTTPS_SCHEME = "https";
 
-    private HttpFetcherConfiguration httpFetcherConfiguration;
+    private final HttpFetcherConfiguration httpFetcherConfiguration;
 
     @Value("${httpClient.timeout:10000}")
     private int httpClientTimeout;
@@ -183,6 +183,9 @@ public class HttpFetcher implements Fetcher {
                     });
                 } else {
                     future.complete(null);
+
+                    // Close client
+                    httpClient.close();
                 }
             });
 
@@ -201,6 +204,9 @@ public class HttpFetcher implements Fetcher {
         } catch (Exception ex) {
             logger.error("Unable to fetch content using HTTP", ex);
             future.completeExceptionally(ex);
+
+            // Close client
+            httpClient.close();
         }
 
         return future;
